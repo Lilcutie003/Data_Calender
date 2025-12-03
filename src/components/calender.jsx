@@ -8,6 +8,7 @@ import enUS from "date-fns/locale/en-US";
 import { useDispatch, useSelector } from "react-redux";
 import { useMemo } from "react";
 import { selectDate } from "../redux/calenderSlice";
+import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 
 const locales = { "en-US": enUS };
 
@@ -30,53 +31,47 @@ export default function CalendarComponent() {
   const dispatch = useDispatch();
   const data = useSelector((state) => state.calendar.events);
   const selectedDate = useSelector((state) => state.calendar.selectedDate);
+console.log("Redux events:", data);
+console.log("Selected date:", useSelector((state) => state.calendar.selectedDate));
 
-  const { events, highlightedDates } = useMemo(() => {
-    const eventList = [];
-    const highlightSet = new Set();
+const { events, highlightedDates } = useMemo(() => {
+  const eventList = [];
+  const highlightSet = new Set();
 
-    Object.keys(data).forEach((dateStr) => {
-      const [day, month, year] = dateStr.split("-").map(Number);
+  Object.keys(data).forEach((dateStr) => {
+    const [day, month, year] = dateStr.split("-").map(Number);
 
-      if (!Array.isArray(data[dateStr])) return;
+    data[dateStr].forEach((entry) => {
+      const startTime = new Date(year, month - 1, day, entry.startHour, entry.startMinute);
+      const endTime = new Date(year, month - 1, day, entry.endHour, entry.endMinute);
+console.log('entry',entry);
 
-      data[dateStr].forEach((entry) => {
-        if (
-          !entry.user
-        ) {
-          return; 
-        }
-
-        const startTime = new Date(year, month - 1, day, entry.startHour, entry.startMinute);
-        const endTime = new Date(year, month - 1, day, entry.endHour, entry.endMinute);
-
-        eventList.push({
-          title: `${entry.user}: ${entry.value}`,
-          start: startTime,
-          end: endTime,
-          allDay: false,
-        });
-
-        highlightSet.add(new Date(year, month - 1, day).toDateString());
+      eventList.push({
+        title: `${entry.user}: ${entry.value}`,
+        start: startTime,
+        end: endTime,
+        allDay: false,
       });
-    });
 
-    return { events: eventList, highlightedDates: highlightSet };
-  }, [data]);
+      highlightSet.add(new Date(year, month - 1, day).toDateString());
+    });
+  });
+
+  return { events: eventList, highlightedDates: highlightSet };
+}, [data]);
+
 
   const dayPropGetter = (date) => {
     const dateStr = date.toDateString();
-
-    // Highlight selected date
     if (selectedDate) {
       const [day, month, year] = selectedDate.split("-").map(Number);
       const selectedDateObj = new Date(year, month - 1, day);
       if (dateStr === selectedDateObj.toDateString()) {
         return {
           style: {
-            backgroundColor: "#2e6193ff",
+            backgroundColor: "#8ce5e8ff",
             color: "#fff",
-            border: "2px solid #1a75ff",
+            border: "2px solid #a5e4f5ff",
             cursor: "pointer",
             borderRadius: "6px",
           },
