@@ -1,10 +1,9 @@
+import CalenderComponent from "./components/calender";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-       Data Calender
-      </header>
+      <div style={{ position: "relative" }}>
+      <CalenderComponent/>
     </div>
   );
 }
